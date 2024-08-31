@@ -1,0 +1,28 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: gym-prod
+  region: eu-north-1
+
+managedNodeGroups:
+  - name: eks-managed
+    instanceType: t3.micro # AWS free tier
+    volumeSize: 20
+    desiredCapacity: 5
+    maxSize: 8
+    privateNetworking: true
+    ssh:
+      allow: true
+
+gitops:
+  flux:
+    gitProvider: github
+    flags: # required. arbitrary map[string]string for all flux args.
+      owner: "johnjaredprater"
+      repository: "web_server"
+      private: "false"
+      personal: "true"
+      branch: "main"
+      path: "./deploy"
+      namespace: "flux-system"
