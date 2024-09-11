@@ -18,6 +18,16 @@ To scale the managed nodegroup, use:
 eksctl scale nodegroup --cluster=gym-prod --nodes=5 --nodes-max=6 --name=eks-managed --wait
 ```
 
+To enable flux use:
+```
+eksctl enable flux --config-file eks/gym-prod/cluster-config.yaml
+```
+
+To update a nodegroup
+```bash
+eksctl upgrade nodegroup --name=eks-managed --cluster=gym-prod
+```
+
 ## Useful Commands
 
 Some useful kubectl commands:

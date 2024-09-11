@@ -8,9 +8,9 @@ metadata:
 managedNodeGroups:
   - name: eks-managed
     instanceType: t3.micro # AWS free tier
-    volumeSize: 20
-    desiredCapacity: 5
-    maxSize: 8
+    volumeSize: 8
+    desiredCapacity: 4
+    maxSize: 6
     privateNetworking: true
     ssh:
       allow: true
@@ -20,9 +20,10 @@ gitops:
     gitProvider: github
     flags: # required. arbitrary map[string]string for all flux args.
       owner: "johnjaredprater"
-      repository: "web_server"
+      repository: "infrastructure"
       private: "false"
       personal: "true"
       branch: "main"
       path: "./deploy"
       namespace: "flux-system"
+      components: "source-controller,kustomize-controller"
