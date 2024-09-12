@@ -11,6 +11,22 @@ spec:
     branch: main
   url: https://github.com/johnjaredprater/infrastructure
 ---
+# Tells flux which repo & file to monitor & apply changes to the Kubernetes cluster
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  path: "./deploy/manifests"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: infrastructure
+  targetNamespace: default
+---
+
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
@@ -21,17 +37,6 @@ spec:
   ref:
     branch: main
   url: https://github.com/johnjaredprater/web_server
----
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: GitRepository
-metadata:
-  name: gym-track-core
-  namespace: flux-system
-spec:
-  interval: 1m0s
-  ref:
-    branch: main
-  url: https://github.com/johnjaredprater/gym_track_core
 ---
 # Tells flux which repo & file to monitor & apply changes to the Kubernetes cluster
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -47,6 +52,18 @@ spec:
     kind: GitRepository
     name: web-server
   targetNamespace: default
+
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gym-track-core
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  url: https://github.com/johnjaredprater/gym_track_core
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

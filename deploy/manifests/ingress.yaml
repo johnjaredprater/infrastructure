@@ -1,0 +1,36 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-and-api-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:eu-north-1:339712723771:certificate/30af5d53-02f1-446d-b3aa-3521c2c8c81d"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+spec:
+  rules:
+  - host: gym.johnprater.me
+    http:
+      paths:
+      # Route for the web server (default path "/")
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-server
+            port:
+              number: 3000
+      # Route for the Python API (path "/api")
+      - path: /api/
+        pathType: Prefix
+        backend:
+          service:
+            name: gym-track-core
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - gym.johnprater.me
+    secretName: gym-tls
