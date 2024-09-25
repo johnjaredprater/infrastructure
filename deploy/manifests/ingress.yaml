@@ -10,7 +10,7 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: 'ip'
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-north-1:339712723771:certificate/30af5d53-02f1-446d-b3aa-3521c2c8c81d"
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-west-2:339712723771:certificate/979d85f0-c2c2-4dbf-afaa-7c01e6513f76"
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/actions.redirect-to-https: |
       {"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301" }}
