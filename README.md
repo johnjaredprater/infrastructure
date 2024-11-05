@@ -1,45 +1,70 @@
 # infrastructure
 
-More docs are here: (eksctl - getting started)[https://eksctl.io/getting-started/]
+Currently, the infrastructure must be deployed using terraform locally.
 
-To spin up the gym-prod EKS cluster, use:
+Install pre-commit & set it up:
 ```bash
-export GITHUB_TOKEN=<your gitlab token>
-eksctl create cluster -f eks/gym-prod/cluster-config.yaml
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
 ```
 
-To delete an existing cluster, use:
+Install Terraform & login:
 ```bash
-eksctl delete cluster --region=eu-north-1 --name=gym-prod
+brew install hashicorp/tap/terraform
+terraform login
+
+brew install terraform-docs
 ```
 
-To scale the managed nodegroup, use:
+To spin up the EKS cluster, use:
 ```bash
-eksctl scale nodegroup --cluster=gym-prod --nodes=5 --nodes-max=6 --name=eks-managed --wait
+cd terraform/eks-cluster
+terraform init
+terraform plan
+terraform apply
 ```
 
-To enable flux use:
-```
-eksctl enable flux --config-file eks/gym-prod/cluster-config.yaml
-```
-
-To update a nodegroup
+To add the RDS database, the load balancer controller and some secrets use
 ```bash
-eksctl upgrade nodegroup --name=eks-managed --cluster=gym-prod
+cd terraform/resources
+
+aws eks --region eu-west-2 update-kubeconfig --name gym-prod
+export KUBE_CONFIG_PATH=~/.kube/config
+
+terraform init
+terraform plan
+terraform apply
 ```
+
+To deploy the relevant applications on the cluster, bootstrap flux:
+
+```bash
+kubectl config current-context
+
+export GITHUB_TOKEN=<token>
+flux bootstrap github \
+  --token-auth \
+  --owner=johnjaredprater \
+  --repository=infrastructure \
+  --branch=main \
+  --path=./deploy \
+  --personal \
+  --components="source-controller,kustomize-controller"
+```
+
+Finally modify the dmomain dns records to point the domain name to the load balancer 
 
 ## Useful Commands
 
 Some useful kubectl commands:
 
 ```bash
+kubectl config current-context
 kubectl cluster-info
 
 kubectl get deployments
-kubectl describe deployments web-server
-
 kubectl get services
-kubectl describe services web-server-service
 
 kubectl get all -A
 ```
@@ -50,15 +75,12 @@ view resource aliases with `ctrl + a`, and `d` to describe a selected resource. 
 
 ## Debug
 
-Can get stack info with:
-
+To spin up a simple pod for testing the infrastructure, use:
 ```bash
-eksctl utils describe-stacks --region=eu-north-1 --cluster=gym-prod
+kubectl run -i --tty --rm debug --image=busybox --restart=Never -- sh
 ```
 
-Can view logs with:
-```bash
-aws cloudformation describe-stack-set-operation \
-  --stack-set-name eksctl-gym-prod-nodegroup-eks-mng \
-  --operation-id xxxx-xxxx-xxxxx
+For example you could test the connection to the DB with:
+```
+nc gym-track-core.cziymq0g8e9k.eu-west-2.rds.amazonaws.com 3306
 ```
