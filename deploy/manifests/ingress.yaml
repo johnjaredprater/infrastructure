@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-  - host: gym3.johnprater.me
+  - host: gym.johnprater.me
     http:
       paths:
       # Route for the web server (default path "/")
@@ -31,5 +31,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - gym3.johnprater.me
+    - gym.johnprater.me
     secretName: ssl-cert
