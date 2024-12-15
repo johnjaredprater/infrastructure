@@ -17,23 +17,39 @@ terraform login
 brew install terraform-docs
 ```
 
-To spin up the EKS cluster, use:
+Install the Digital Ocean CLI tool & export an access token:
 ```bash
-cd terraform/eks-cluster
+brew install doctl
+doctl auth init -t $(cat ~/digital-ocean-token)
+export DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/digital-ocean-token)
+```
+
+To store terraform state remotely in a Digital Ocean space, our terraform can
+make use of the s3 api. So export the following environment variables to 
+grant access (this is not for interfacing with AWS!):
+```
+export AWS_ACCESS_KEY_ID=$(cat ~/digital-ocean-spaces-access-key)
+export AWS_SECRET_ACCESS_KEY=$(cat ~/digital-ocean-spaces-secret-key)
+```
+
+To spin up the Kubernetes Cluster, use:
+```bash
+cd terraform/digital-ocean/kubernetes-cluster
+
 terraform init
-terraform plan
 terraform apply
 ```
 
-To add the RDS database, the load balancer controller and some secrets use
+To add the resources and database cluster use
 ```bash
-cd terraform/resources
+cd terraform/digital-ocean/resources-and-db
 
-aws eks --region eu-west-2 update-kubeconfig --name gym-prod
+doctl kubernetes cluster kubeconfig save gym-track
+kubectl config get-contexts
+kubectl config use-context ...
 export KUBE_CONFIG_PATH=~/.kube/config
 
 terraform init
-terraform plan
 terraform apply
 ```
 
@@ -82,5 +98,5 @@ kubectl run -i --tty --rm debug --image=busybox --restart=Never -- sh
 
 For example you could test the connection to the DB with:
 ```
-nc gym-track-core.cziymq0g8e9k.eu-west-2.rds.amazonaws.com 3306
+nc <host> <port>
 ```
